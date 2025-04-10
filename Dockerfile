@@ -1,31 +1,40 @@
-# Use an official PHP image with Composer (adjust version as needed)
+# Use a base image with PHP and Composer (adjust version as needed)
 FROM laravelsail/php82-composer:latest
 
-# Set working directory
+# Set the working directory
 WORKDIR /var/www/html
 
-# Copy composer files first for caching dependencies
-COPY composer.json composer.lock ./
+# --------------------------------------------------------------------
+# Step 1: Copy composer files and essential files for package discover
+# --------------------------------------------------------------------
 
-# Install production dependencies
+# Copy composer files, artisan, and required directories first so that
+# composer install can run without missing the artisan file.
+COPY composer.json composer.lock artisan ./
+COPY bootstrap ./bootstrap
+COPY config ./config
+
+# Install production dependencies without dev packages
 RUN composer install --no-dev --optimize-autoloader
 
-# Copy all project files to the container
+# --------------------------------------------------------------------
+# Step 2: Copy the rest of the application code
+# --------------------------------------------------------------------
 COPY . .
 
-# Generate optimized autoload files
-RUN composer dump-autoload --optimize
+# --------------------------------------------------------------------
+# Step 3: Re-optimize autoload files and run package discover
+# --------------------------------------------------------------------
+RUN composer dump-autoload --optimize && php artisan package:discover --ansi
 
-# Set file permissions (adjust the user and group if necessary)
+# Set proper file permissions (adjust as needed)
 RUN chown -R www-data:www-data /var/www/html
 
-# Expose port 80 (the default HTTP port)
+# Expose port 80
 EXPOSE 80
 
-# Run Artisan commands (optional: cache config/routes/views, etc.)
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
-
-# Start PHP’s built-in server (for production consider using a proper web server like Nginx)
+# --------------------------------------------------------------------
+# Step 4: Set default command
+# --------------------------------------------------------------------
+# For a simple deployment use Laravel's built-in server.
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
