@@ -1,45 +1,48 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        // Create the users table.
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            // Keeping the email unique for users.
-            $table->string('email');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
-        });
+        // Create users table.
+        DB::unprepared("
+            CREATE TABLE users (
+                id BIGSERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                email_verified_at TIMESTAMP WITH TIME ZONE NULL,
+                password VARCHAR(255) NOT NULL,
+                remember_token VARCHAR(100) NULL,
+                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+        ");
 
-        // // Create the password reset tokens table.
-        // // Instead of making the email column a primary key, we create an index.
-        // Schema::create('password_reset_tokens', function (Blueprint $table) {
-        //     $table->string('email')->index();
-        //     $table->string('token');
-        //     $table->timestamp('created_at')->nullable();
-        // });
+        // Create password_resets table.
+        DB::unprepared("
+            CREATE TABLE password_resets (
+                email VARCHAR(255) NOT NULL,
+                token VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP WITH TIME ZONE NULL
+            );
+        ");
 
-        // // Create the sessions table.
-        // Schema::create('sessions', function (Blueprint $table) {
-        //     $table->string('id')->primary();
-        //     $table->foreignId('user_id')->nullable()->index();
-        //     $table->string('ip_address', 45)->nullable();
-        //     $table->text('user_agent')->nullable();
-        //     $table->longText('payload');
-        //     $table->integer('last_activity')->index();
-        // });
+        // Create sessions table.
+        DB::unprepared("
+            CREATE TABLE sessions (
+                id VARCHAR(255) PRIMARY KEY,
+                user_id BIGINT NULL,
+                ip_address VARCHAR(45) NULL,
+                user_agent TEXT NULL,
+                payload TEXT NOT NULL,
+                last_activity INTEGER NOT NULL
+            );
+        ");
     }
 
     /**
@@ -47,8 +50,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sessions');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('users');
+        DB::unprepared("DROP TABLE IF EXISTS sessions;");
+        DB::unprepared("DROP TABLE IF EXISTS password_resets;");
+        DB::unprepared("DROP TABLE IF EXISTS users;");
     }
 };

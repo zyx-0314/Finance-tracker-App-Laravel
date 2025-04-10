@@ -1,33 +1,33 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('goals', function (Blueprint $table) {
-            $table->id(); // Primary key
-            $table->string('title'); // Goal title
-            $table->text('description')->nullable(); // Optional description
-            $table->decimal('target_amount', 10, 2); // Goal target amount
-            $table->decimal('current_amount', 10, 2)->default(0); // Current progress toward the goal
-            $table->string('status')->default('active'); // e.g., active, completed
-            $table->timestamps(); // created_at and updated_at
-        });
+        DB::unprepared("
+            CREATE TABLE goals (
+                id BIGSERIAL PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                description TEXT NULL,
+                target_amount NUMERIC(10,2) NOT NULL,
+                current_amount NUMERIC(10,2) NOT NULL DEFAULT 0,
+                status VARCHAR(255) NOT NULL DEFAULT 'active',
+                created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
+        ");
     }
-    
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('goals');
+        DB::unprepared("DROP TABLE IF EXISTS goals;");
     }
 };
