@@ -13,6 +13,7 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock artisan ./
 COPY bootstrap ./bootstrap
 COPY config ./config
+COPY routes ./routes
 
 # Install production dependencies without dev packages
 RUN composer install --no-dev --optimize-autoloader
