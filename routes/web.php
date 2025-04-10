@@ -19,5 +19,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('transactions', TransactionController::class);
+Route::get('/transactions', function () {
+    return view('transactions.index');
+})->name('transactions.index');
 
 require __DIR__.'/auth.php';
