@@ -1,4 +1,3 @@
-{{-- resources/views/transactions/index.blade.php --}}
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,5 +16,16 @@
     @endforeach
     {{-- Link to create new transaction (route will be added later) --}}
     <a href="{{ route('transactions.create') }}">Add New Transaction</a>
+
+    {{-- Inside the foreach loop in resources/views/transactions/index.blade.php --}}
+    <a href="{{ route('transactions.edit', $transaction->id) }}">Edit</a>
+
+    {{-- Delete form --}}
+    <form action="{{ route('transactions.destroy', $transaction->id) }}" method="POST" style="display:inline;">
+        @csrf
+        @method('DELETE')
+        <button type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+    </form>
+
 </body>
 </html>
